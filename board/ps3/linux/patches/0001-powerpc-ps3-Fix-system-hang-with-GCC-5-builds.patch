@@ -1,0 +1,65 @@
+From 80bf80fee0eb66211c72cf6b70627a271924bf28 Mon Sep 17 00:00:00 2001
+From: Geoff Levand <geoff@infradead.org>
+Date: Mon, 21 Nov 2016 10:29:44 -0800
+Subject: [PATCH 1/5] powerpc/ps3: Fix system hang with GCC 5 builds
+
+GCC 5 generates different code for this bootwrapper null check
+that causes the PS3 to hang very early in its bootup.  This
+check is of limited value, so just get rid of it.
+
+Signed-off-by: Geoff Levand <geoff@infradead.org>
+---
+ arch/powerpc/boot/ps3-head.S | 5 -----
+ arch/powerpc/boot/ps3.c      | 8 +-------
+ 2 files changed, 1 insertion(+), 12 deletions(-)
+
+diff --git a/arch/powerpc/boot/ps3-head.S b/arch/powerpc/boot/ps3-head.S
+index b6fcbaf..3dc44b0 100644
+--- a/arch/powerpc/boot/ps3-head.S
++++ b/arch/powerpc/boot/ps3-head.S
+@@ -57,11 +57,6 @@ __system_reset_overlay:
+ 	bctr
+ 
+ 1:
+-	/* Save the value at addr zero for a null pointer write check later. */
+-
+-	li	r4, 0
+-	lwz	r3, 0(r4)
+-
+ 	/* Primary delays then goes to _zimage_start in wrapper. */
+ 
+ 	or	31, 31, 31 /* db16cyc */
+diff --git a/arch/powerpc/boot/ps3.c b/arch/powerpc/boot/ps3.c
+index 4ec2d86..a05558a 100644
+--- a/arch/powerpc/boot/ps3.c
++++ b/arch/powerpc/boot/ps3.c
+@@ -119,13 +119,12 @@ void ps3_copy_vectors(void)
+ 	flush_cache((void *)0x100, 512);
+ }
+ 
+-void platform_init(unsigned long null_check)
++void platform_init(void)
+ {
+ 	const u32 heapsize = 0x1000000 - (u32)_end; /* 16MiB */
+ 	void *chosen;
+ 	unsigned long ft_addr;
+ 	u64 rm_size;
+-	unsigned long val;
+ 
+ 	console_ops.write = ps3_console_write;
+ 	platform_ops.exit = ps3_exit;
+@@ -153,11 +152,6 @@ void platform_init(unsigned long null_check)
+ 
+ 	printf(" flat tree at 0x%lx\n\r", ft_addr);
+ 
+-	val = *(unsigned long *)0;
+-
+-	if (val != null_check)
+-		printf("null check failed: %lx != %lx\n\r", val, null_check);
+-
+ 	((kernel_entry_t)0)(ft_addr, 0, NULL);
+ 
+ 	ps3_exit();
+-- 
+2.9.3
+
