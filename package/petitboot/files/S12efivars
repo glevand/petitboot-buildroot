@@ -1,0 +1,12 @@
+#!/bin/sh
+
+EFIVARS_PATH="/sys/firmware/efi/efivars"
+
+case "$1" in
+    start)
+        mkdir -p ${EFIVARS_PATH}
+        mount -t efivarfs none ${EFIVARS_PATH}
+        ;;
+esac
+
+exit 0

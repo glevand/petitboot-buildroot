@@ -1,0 +1,19 @@
+Buildroot's GETTEXTIZE hook will add its own po/Makefile.in.  Remove
+petitboot's to avoid conflict.
+
+Fixes build errors like these:
+
+  configure.ac: error: `po/Makefile.in' is already registered with AC_CONFIG_FILES.
+
+diff --git a/configure.ac b/configure.ac
+index b540819..35aa4d9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -267,7 +267,6 @@ AC_SUBST([pkgsysconfdir], ["${sysconfdir}/${package}"])
+ AC_CONFIG_HEADERS([config.h])
+ AC_CONFIG_FILES([
+ 	Makefile
+-	po/Makefile.in
+ ])
+ 
+ AC_OUTPUT
