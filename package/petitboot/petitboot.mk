@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-PETITBOOT_VERSION = v1.8.0
-PETITBOOT_SITE = git://ozlabs.org/petitboot
+PETITBOOT_VERSION = base
+PETITBOOT_SITE = $(call github,glevand,petitboot--petitboot,$(PETITBOOT_VERSION))
 PETITBOOT_DEPENDENCIES = ncurses udev host-bison host-flex lvm2
 PETITBOOT_LICENSE = GPLv2
 PETITBOOT_LICENSE_FILES = COPYING
