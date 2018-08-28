@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PS3_UTILS
+	bool "ps3-utils"
+	help
+	  Utilities for the PS3-Linux
+
