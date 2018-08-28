@@ -17,7 +17,7 @@ case "$1" in
         ulimit -c unlimited
         mkdir -p $(dirname $LOGFILE)
         export $(cat /etc/locale)
-        pb-discover -l $LOGFILE $verbose &
+        pb-discover -l $LOGFILE $verbose --no-autoboot &
         echo $! > $PIDFILE
         ;;
     stop)
