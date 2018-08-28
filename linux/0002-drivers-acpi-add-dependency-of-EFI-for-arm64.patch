@@ -1,0 +1,38 @@
+From 987d28971e68b363e39b11ed464645a54d2f925e Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 23 Jul 2018 10:57:29 +0900
+Subject: [PATCH 2/5] drivers: acpi: add dependency of EFI for arm64
+
+As Ard suggested, CONFIG_ACPI && !CONFIG_EFI doesn't make sense on arm64,
+while CONFIG_ACPI and CONFIG_CPU_BIG_ENDIAN doesn't make sense either.
+
+As CONFIG_EFI already has a dependency of !CONFIG_CPU_BIG_ENDIAN, it is
+good enough to add a dependency of CONFIG_EFI to avoid any useless
+combination of configuration.
+
+This bug, reported by Will, will be revealed when my patch series,
+"arm64: kexec,kdump: fix boot failures on acpi-only system," is applied
+and the kernel is built under allmodconfig.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ drivers/acpi/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+index 516d7b36d6fb..051fd29de55b 100644
+--- a/drivers/acpi/Kconfig
++++ b/drivers/acpi/Kconfig
+@@ -6,7 +6,7 @@
+ menuconfig ACPI
+ 	bool "ACPI (Advanced Configuration and Power Interface) Support"
+ 	depends on !IA64_HP_SIM
+-	depends on IA64 || X86 || ARM64
++	depends on IA64 || X86 || (ARM64 && EFI)
+ 	depends on PCI
+ 	select PNP
+ 	default y if (IA64 || X86)
+-- 
+2.14.1
+

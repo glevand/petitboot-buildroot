@@ -1,0 +1,52 @@
+From 00a04e44cbaedc2f45b658147e1dd1b073d0aa0a Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Mon, 23 Jul 2018 10:57:30 +0900
+Subject: [PATCH 3/5] efi/arm: preserve early mapping of UEFI memory map longer
+ for BGRT
+
+The BGRT code validates the contents of the table against the UEFI
+memory map, and so it expects it to be mapped when the code runs.
+
+On ARM, this is currently not the case, since we tear down the early
+mapping after efi_init() completes, and only create the permanent
+mapping in arm_enable_runtime_services(), which executes as an early
+initcall, but still leaves a window where the UEFI memory map is not
+mapped.
+
+So move the call to efi_memmap_unmap() from efi_init() to
+arm_enable_runtime_services().
+
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ drivers/firmware/efi/arm-init.c    | 1 -
+ drivers/firmware/efi/arm-runtime.c | 2 ++
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/firmware/efi/arm-init.c b/drivers/firmware/efi/arm-init.c
+index 80d1a885def5..a7c522eac640 100644
+--- a/drivers/firmware/efi/arm-init.c
++++ b/drivers/firmware/efi/arm-init.c
+@@ -259,7 +259,6 @@ void __init efi_init(void)
+ 
+ 	reserve_regions();
+ 	efi_esrt_init();
+-	efi_memmap_unmap();
+ 
+ 	memblock_reserve(params.mmap & PAGE_MASK,
+ 			 PAGE_ALIGN(params.mmap_size +
+diff --git a/drivers/firmware/efi/arm-runtime.c b/drivers/firmware/efi/arm-runtime.c
+index 5889cbea60b8..59a8c0ec94d5 100644
+--- a/drivers/firmware/efi/arm-runtime.c
++++ b/drivers/firmware/efi/arm-runtime.c
+@@ -115,6 +115,8 @@ static int __init arm_enable_runtime_services(void)
+ 		return 0;
+ 	}
+ 
++	efi_memmap_unmap();
++
+ 	if (efi_runtime_disabled()) {
+ 		pr_info("EFI runtime services will be disabled.\n");
+ 		return 0;
+-- 
+2.14.1
+
