@@ -10,7 +10,7 @@ DROPBEAR_SOURCE = dropbear-$(DROPBEAR_VERSION).tar.bz2
 DROPBEAR_LICENSE = MIT, BSD-2-Clause-like, BSD-2-Clause
 DROPBEAR_LICENSE_FILES = LICENSE
 DROPBEAR_TARGET_BINS = dropbearkey dropbearconvert scp
-DROPBEAR_PROGRAMS = dropbear $(DROPBEAR_TARGET_BINS)
+DROPBEAR_PROGRAMS = $(DROPBEAR_TARGET_BINS)
 
 # Disable hardening flags added by dropbear configure.ac, and let
 # Buildroot add them when the relevant options are enabled. This
@@ -21,6 +21,11 @@ ifeq ($(BR2_PACKAGE_DROPBEAR_CLIENT),y)
 # Build dbclient, and create a convenience symlink named ssh
 DROPBEAR_PROGRAMS += dbclient
 DROPBEAR_TARGET_BINS += dbclient ssh
+endif
+
+ifeq ($(BR2_PACKAGE_DROPBEAR_SERVER),y)
+DROPBEAR_PROGRAMS += dropbear
+DROPBEAR_TARGET_BINS += dropbear
 endif
 
 DROPBEAR_MAKE = \
@@ -81,6 +86,7 @@ define DROPBEAR_DISABLE_STANDALONE
 	echo '#define NON_INETD_MODE 0'                 >> $(@D)/localoptions.h
 endef
 
+ifeq ($(BR2_PACKAGE_DROPBEAR_SERVER),y)
 define DROPBEAR_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 644 package/dropbear/dropbear.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/dropbear.service
@@ -96,6 +102,7 @@ define DROPBEAR_INSTALL_INIT_SYSV
 endef
 else
 DROPBEAR_POST_EXTRACT_HOOKS += DROPBEAR_DISABLE_STANDALONE
+endif
 endif
 
 ifeq ($(BR2_PACKAGE_DROPBEAR_DISABLE_REVERSEDNS),)
