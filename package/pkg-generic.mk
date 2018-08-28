@@ -973,6 +973,14 @@ $(eval $(call check-deprecated-variable,$(2)_KCONFIG_OPT,$(2)_KCONFIG_OPTS))
 
 PACKAGES += $(1)
 
+ifneq ($$($(2)_INSTALL_STAGING)$$($(2)_INSTALL_TARGET),NONO)
+TARGET_TARGETS += $(1)
+endif
+
+ifeq ($$($(2)_INSTALL_IMAGES),YES)
+IMAGE_TARGETS  += $(1)
+endif
+
 ifneq ($$($(2)_PERMISSIONS),)
 PACKAGES_PERMISSIONS_TABLE += $$($(2)_PERMISSIONS)$$(sep)
 endif
