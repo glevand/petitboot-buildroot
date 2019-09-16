@@ -126,9 +126,9 @@ index 32f465a80e4e..d53c95f4e1a9 100644
 +{
 +	return __acpi_get_mem_attribute(addr);
 +}
- #endif /* CONFIG_ACPI_APEI */
  
- #ifdef CONFIG_ACPI_NUMA
+ /*
+  * Despite its name, this function must still broadcast the TLB
 diff --git a/arch/arm64/kernel/acpi.c b/arch/arm64/kernel/acpi.c
 index 7b09487ff8fb..ed46dc188b22 100644
 --- a/arch/arm64/kernel/acpi.c
